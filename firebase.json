@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "dgc-fi",
     "public": "dist",
     "ignore": [
       "firebase.json",

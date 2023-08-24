@@ -73,16 +73,17 @@
                 border-radius: 10px;
               "
             >
-              Done @ {{ task.doneTime }} | {{ task.doneDate }}</p
+              Done @ {{ task.doneTime }}</p
             >
           </div>
           <div class="btn-group">
             <button
               @click="toggleDone(task.id)"
               :class="task.done ? 'is-success' : 'is-light'"
-              class="button"
+              class="button is-danger"
             >
-              {{ task.done ? "Cancel" : "Done ?" }}
+              <!-- {{ task.done ? "Cancel" : "Done ?" }} -->
+              Cancel Done ?
             </button>
           </div>
         </div>
@@ -129,7 +130,7 @@ onMounted(() => {
         author: doc.data().author,
         deadline: doc.data().deadline,
         doneTime: doc.data().doneTime,
-        doneDate: doc.data().doneDate,
+        
       };
       fbTasks.push(task);
     });
@@ -139,11 +140,19 @@ onMounted(() => {
 
 // Fungsi-fungsi untuk menambahkan, menghapus, dan mengubah status tugas
 
-const toggleDone = (id) => {
-  const index = tasks.value.findIndex((task) => task.id === id);
-  updateDoc(doc(collection(db, "selesai"), id), {
-    done: !tasks.value[index].done,
-  });
+const toggleDone =async (id) => {
+  // const index = tasks.value.findIndex((task) => task.id === id);
+  // updateDoc(doc(collection(db, "selesai"), id), {
+  //   done: !tasks.value[index].done,
+  // });
+
+  
+  const deletedTask = await getDoc(doc(db, "selesai", id));
+  if (deletedTask.exists()) {
+    const deletedData = deletedTask.data();
+    await addDoc(collection(db, "todos"), deletedData);
+    deleteDoc(doc(db, "selesai", id));
+  }
 };
 </script>
 
