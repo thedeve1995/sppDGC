@@ -127,14 +127,13 @@ import {
   collection,
   onSnapshot,
   addDoc,
-  deleteDoc,
-  doc,
   query,
   orderBy,
-  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import { startOfDay } from "date-fns";
+
+
 
 const amount = ref("");
 const supplier = ref("");

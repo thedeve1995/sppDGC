@@ -71,19 +71,22 @@
     </div>
   </form>
 
-  <h1
+ 
+
+  <div
     style="
-      font-size: 30px;
-      text-align: center;
-      margin-top: 20px;
-      margin-bottom: 30px;
-      font-weight: 700;
-      color: burlywood;
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      justify-content:center;
+      gap:20px
+
     "
   >
-    DAFTAR JUALAN KANTIN SMP SMA ISLAM DE GREEN CAMP
-  </h1>
-
+    <button style="padding:20px;width:200px" @click="downloadAsPDF">Download as PDF</button>
+    <button style="padding:20px;width:200px" @click="openCommissionModal">Hitung Komisi Supplier</button>
+  </div>
+  
   <div style="display: flex; flex-direction: column; align-items: center">
     <label style="text-align: center; font-size: 20px" for="">Filter</label>
     <input
@@ -131,9 +134,23 @@
       />
     </div>
   </div>
+  
 
   <div class="table-container">
-    <table class="transaction-table">
+    <h1
+      style="
+        color: white;
+        font-size: 40px;
+        margin-bottom: 20px;
+        background-color: black;
+        border-radius:10px;
+        padding: 20px 0
+      "
+    >
+      Rekap Data Kantin : <br />
+      {{ startDate }} s/d {{ endDate }}
+    </h1>
+    <table class="transaction-table" style="padding: 20px">
       <thead>
         <tr>
           <th>Tanggal</th>
@@ -275,7 +292,7 @@
               v-model="editTerjual"
               class="input"
               type="number"
-              placeholder="Tanggal"
+              placeholder="Masukkan Jumlah Terjual"
             />
           </div>
         </div>
@@ -288,6 +305,70 @@
       </footer>
     </div>
   </div>
+
+  <div class="modal" :class="{ 'is-active': commissionModalOpen }">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Hitung Komisi Supplier</p>
+      <button class="delete" aria-label="close" @click="closeCommissionModal"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Nama Supplier</label>
+        <div class="control">
+          <select v-model="selectedSupplier" class="input" @change="calculateCommissionTotal">
+            <option value="">Semua Supplier</option>
+            <!-- Tambahkan pilihan nama supplier di sini -->
+            <option value="Indah">Indah</option>
+            <option value="Leni">Leni</option>
+            <option value="Lisa">Lisa</option>
+            <option value="Meta">Meta</option>
+            <option value="Dani">Dani</option>
+            <option value="Bunda Qory">Bunda Qory</option>
+            <option value="Kris Juniati">Kris Juniati</option>
+            <option value="Nur">Nur</option>
+            <option value="Fiza">Fiza</option>
+            <option value="Citra">Citra</option>
+            <option value="Bunda Lutfi">Bunda Lutfi</option>
+            <option value="Bunda Nessa">Bunda Nessa</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Rentang Tanggal</label>
+        <div class="control">
+          <input
+            style="width: 200px"
+            id="commissionStartDate"
+            v-model="startDate1"
+            @change="calculateCommissionTotal"
+            class="input"
+            type="date"
+          />
+          <span style="color: white">s/d</span>
+          <input
+            style="width: 200px"
+            id="commissionEndDate"
+            v-model="endDate1"
+            @change="calculateCommissionTotal"
+            class="input"
+            type="date"
+          />
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Total Komisi Supplier</label>
+        <div class="control">
+          <input v-model="commissionTotal" class="input" type="text" disabled />
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button @click="closeCommissionModal" class="button">Tutup</button>
+    </footer>
+  </div>
+</div>
 </template>
 <script setup>
 import { ref, onMounted, computed } from "vue";
@@ -302,6 +383,23 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase";
+import html2canvas from "html2canvas"; // Import html2canvas
+import jsPDF from "jspdf";
+
+const downloadAsPDF = () => {
+  const screenshotElement = document.querySelector(".table-container");
+
+  html2canvas(screenshotElement).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF();
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("screenshot.pdf");
+  });
+};
 
 const amount = ref("");
 const supplier = ref("");
@@ -311,7 +409,9 @@ const foodTitle = ref("");
 
 const filterData = ref("");
 const startDate = ref("");
+const startDate1 = ref("");
 const endDate = ref("");
+const endDate1 = ref("");
 
 const editDate = ref("");
 const editingDataId = ref("");
@@ -321,6 +421,34 @@ const editAmount = ref("");
 const editModalOpen = ref(false);
 const editTerjual = ref("");
 const editPrice = ref("");
+
+const commissionModalOpen = ref(false);
+const selectedSupplier = ref(""); // Untuk menyimpan nama supplier yang dipilih pada filter
+const commissionTotal = ref(0); // Untuk menyimpan total komisi supplier
+
+const openCommissionModal = () => {
+  commissionModalOpen.value = true;
+};
+
+const closeCommissionModal = () => {
+  commissionModalOpen.value = false;
+};
+
+const calculateCommissionTotal = () => {
+  // Filter data berdasarkan supplier dan rentang tanggal
+  const filteredData = filteredDatas.value.filter((data) => {
+    const dataDate = new Date(data.date);
+    const isSupplierMatching = selectedSupplier.value === "" || data.supplier === selectedSupplier.value;
+    const isDateInRange = dataDate >= new Date(startDate1.value) && dataDate <= new Date(endDate1.value);
+
+    return isSupplierMatching && isDateInRange;
+  });
+
+  // Hitung total komisi supplier
+  commissionTotal.value = filteredData.reduce((total, data) => {
+    return total + (data.price - calculateCommission(data.price)) * data.terjual;
+  }, 0);
+};
 
 const editData = async (id) => {
   const dataIndex = datas.value.findIndex((t) => t.id === id);
@@ -346,6 +474,8 @@ const editData = async (id) => {
       // Handle error here (e.g., show an error message)
     }
   }
+
+  filterDatas()
 };
 
 const openEditModal = (id) => {
@@ -382,7 +512,7 @@ const deleteData = async (id) => {
 
 const transactionCollectionQuery = query(
   collection(db, "kantin"),
-  orderBy("date", "asc")
+  orderBy("supplier", "asc")
   // limit(10)
 );
 const datas = ref([]);
@@ -569,12 +699,10 @@ const formatNumberWithCommas = (number) => {
 };
 
 const calculateCommission = (price) => {
-  if (price <= 3000) {
-    return 100;
-  } else if (price > 3000 && price <= 6000) {
-    return 300;
-  } else {
+  if (price > 6000) {
     return 500;
+  } else if (price >= 2500 && price <= 6000) {
+    return 300;
   }
 };
 </script>
@@ -587,6 +715,7 @@ const calculateCommission = (price) => {
 .table-container {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   margin-top: 20px;
 }
 
