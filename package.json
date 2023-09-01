@@ -1,5 +1,5 @@
 {
-  "name": "weather-vue",
+  "name": "dgc-kantin",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "bulma": "^0.9.4",
+    "chart.js": "^4.4.0",
+    "date-fns": "^2.30.0",
     "firebase": "^9.23.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",

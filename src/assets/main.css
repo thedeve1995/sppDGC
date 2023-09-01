@@ -3,6 +3,7 @@
 
 body{
   background-color: rgb(41, 38, 43);
+
 }
 
 @media (max-width: 800px){
@@ -11,11 +12,10 @@ body{
   }
 }
 #app {
-  max-width: 1280px;
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 2rem;
-
   font-weight: normal;
+  padding: 30px;
 }
 
 a,

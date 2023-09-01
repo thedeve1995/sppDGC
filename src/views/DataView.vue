@@ -1,0 +1,707 @@
+<template lang="">
+  <form class="addform" @submit.prevent="addData">
+    <div class="input-form">
+      <div class="field has-addons">
+        <div class="control">
+          <label for="author">Supplier</label>
+          <select id="author" v-model="supplier" class="input">
+            <option value="">Pilih Supplier</option>
+            <option value="Indah">Indah</option>
+            <option value="Leni">Leni</option>
+            <option value="Lisa">Lisa</option>
+            <option value="Meta">Meta</option>
+            <option value="Dani">Dani</option>
+            <option value="Bunda Qory">Bunda Qory</option>
+            <option value="Kris Juniati">Kris Juniati</option>
+            <option value="Nur">Nur</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="foodTitle">Nama Makanan</label>
+          <input
+            id="foodTitle"
+            v-model="foodTitle"
+            class="input"
+            type="text"
+            placeholder="Nama Makanan"
+          />
+        </div>
+        <div class="control">
+          <label for="amount">Jumlah</label>
+          <input
+            id="amount"
+            v-model="amount"
+            class="input"
+            type="number"
+            placeholder="amount"
+          />
+        </div>
+        <div class="control">
+          <label for="price">Harga Jual</label>
+          <input
+            id="price"
+            v-model="price"
+            class="input"
+            type="number"
+            placeholder="price"
+          />
+        </div>
+        <div class="control">
+          <label for="date">Tanggal</label>
+          <input
+            id="date"
+            title="date"
+            v-model="date"
+            class="input"
+            type="date"
+          />
+        </div>
+
+        <div class="control">
+          <label style="color: transparent" for="">.</label>
+          <button :disabled="!supplier" class="button is-info">
+            Tambah Transaksi
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <h1
+    style="
+      font-size: 30px;
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 30px;
+      font-weight: 700;
+      color: burlywood;
+    "
+  >
+    DAFTAR JUALAN KANTIN SMP SMA ISLAM DE GREEN CAMP
+  </h1>
+
+  <div style="display: flex; flex-direction: column; align-items: center">
+    <label style="text-align: center; font-size: 20px" for="">Filter</label>
+    <input
+      type="text"
+      style="
+        width: 250px;
+        padding: 5px 20px;
+        font-size: 15px;
+        text-align: center;
+        border-radius: 10px;
+      "
+      v-model="filterData"
+      @input="filterDatas"
+      placeholder="Tulis Nama Supplier"
+      class="input"
+    />
+  </div>
+
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 50px;
+    "
+  >
+    <label style="text-align: center; font-size: 20px" for=""></label>
+    <div style="display: flex; gap: 10px; align-items: center">
+      <input
+        style="width: 200px"
+        id="startDate"
+        v-model="startDate"
+        @change="filterDatas"
+        class="input"
+        type="date"
+      />
+      <span style="color: white">s/d</span>
+      <input
+        style="width: 200px"
+        id="endDate"
+        v-model="endDate"
+        @change="filterDatas"
+        class="input"
+        type="date"
+      />
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="transaction-table">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Supplier</th>
+          <th>Nama Makanan</th>
+          <th>Jumlah Supply</th>
+          <th>Harga Makanan</th>
+          <th>Komisi Kantin</th>
+          <th>Untuk Supplier</th>
+          <th>Terjual</th>
+          <th>Total Kantin</th>
+          <th>Total Supplier</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="data in filteredDatas" :key="data.id">
+          <td>{{ data.date }}</td>
+          <td>{{ data.supplier }}</td>
+          <td>{{ data.foodTitle }}</td>
+          <td>{{ data.amount }}</td>
+          <td>Rp {{ formatNumberWithCommas(data.price) }}</td>
+          <td>Rp {{ calculateCommission(data.price) }}</td>
+          <td>
+            Rp
+            {{
+              formatNumberWithCommas(
+                data.price - calculateCommission(data.price)
+              )
+            }}
+          </td>
+          <td>{{ data.terjual }}</td>
+          <td>Rp {{ calculateCommission(data.price) * data.terjual }}</td>
+          <td>
+            Rp
+            {{
+              formatNumberWithCommas(
+                (data.price - calculateCommission(data.price)) * data.terjual
+              )
+            }}
+          </td>
+          <td>
+            <button @click="openEditModal(data.id)" class="edit-button">
+              Edit
+            </button>
+            <button @click="deleteData(data.id)" class="delete-button">
+              Hapus
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="8" style="text-align: right; font-weight: 700">Total</td>
+          <td id="totalKantin" style="text-align: left; font-weight: 700">
+            Rp {{ formatNumberWithCommas(calculateTotalKantin()) }}
+          </td>
+          <td id="totalSupplier" style="text-align: left; font-weight: 700">
+            Rp {{ formatNumberWithCommas(calculateTotalSupplier()) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background-color: lightgrey; margin: 20px; border-radius: 20px">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <div class="modal" :class="{ 'is-active': editModalOpen }">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Edit Data</p>
+        <button
+          class="delete"
+          aria-label="close"
+          @click="closeEditModal"
+        ></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Tanggal</label>
+          <div class="control">
+            <input
+              v-model="editDate"
+              class="input"
+              type="date"
+              placeholder="Tanggal"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Supplier</label>
+          <div class="control">
+            <input
+              v-model="editSupplier"
+              class="input"
+              type="text"
+              placeholder="Supplier"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Nama Makanan</label>
+          <div class="control">
+            <input
+              v-model="editFoodTitle"
+              class="input"
+              type="text"
+              placeholder="Nama Makanan"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Jumlah</label>
+          <div class="control">
+            <input
+              v-model="editAmount"
+              class="input"
+              type="number"
+              placeholder="Jumlah"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Harga</label>
+          <div class="control">
+            <input
+              v-model="editPrice"
+              class="input"
+              type="number"
+              placeholder="Price"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Terjual</label>
+          <div class="control">
+            <input
+              v-model="editTerjual"
+              class="input"
+              type="number"
+              placeholder="Tanggal"
+            />
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button @click="editData(editingDataId)" class="button is-success">
+          Simpan
+        </button>
+        <button class="button" @click="closeEditModal">Batal</button>
+      </footer>
+    </div>
+  </div>
+</template>
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "@/firebase";
+
+const amount = ref("");
+const supplier = ref("");
+const date = ref("");
+const price = ref("");
+const foodTitle = ref("");
+
+const filterData = ref("");
+const startDate = ref("");
+const endDate = ref("");
+
+const editDate = ref("");
+const editingDataId = ref("");
+const editSupplier = ref("");
+const editFoodTitle = ref("");
+const editAmount = ref("");
+const editModalOpen = ref(false);
+const editTerjual = ref("");
+const editPrice = ref("");
+
+const editData = async (id) => {
+  const dataIndex = datas.value.findIndex((t) => t.id === id);
+  if (dataIndex !== -1) {
+    const editedData = {
+      amount: editAmount.value,
+      supplier: editSupplier.value,
+      date: editDate.value,
+      terjual: editTerjual.value,
+      price: editPrice.value,
+      foodTitle: editFoodTitle.value,
+    };
+
+    try {
+      await updateDoc(doc(db, "kantin", id), editedData);
+      datas.value[dataIndex] = {
+        ...datas.value[dataIndex],
+        ...editedData,
+      };
+      closeEditModal();
+    } catch (error) {
+      console.error("Error editing transaction:", error);
+      // Handle error here (e.g., show an error message)
+    }
+  }
+};
+
+const openEditModal = (id) => {
+  const data = datas.value.find((t) => t.id === id);
+  if (data) {
+    editAmount.value = data.amount;
+    editDate.value = data.date;
+    editFoodTitle.value = data.foodTitle; // Populate editDate
+    editPrice.value = data.price; // Populate editTransactionType
+    editSupplier.value = data.supplier;
+    editTerjual.value = data.terjual;
+
+    editingDataId.value = id;
+    editModalOpen.value = true;
+  }
+};
+
+const closeEditModal = () => {
+  editAmount.value = "";
+  editSupplier.value = "";
+  editDate.value = ""; // Clear editDate
+  editTerjual.value = ""; // Clear editTransactionType
+  editPrice.value = "";
+  editFoodTitle.value = "";
+  // ... (clear other edit variables)
+
+  editingDataId.value = "";
+  editModalOpen.value = false;
+};
+
+const deleteData = async (id) => {
+  deleteDoc(doc(db, "kantin", id));
+};
+
+const transactionCollectionQuery = query(
+  collection(db, "kantin"),
+  orderBy("date", "asc")
+  // limit(10)
+);
+const datas = ref([]);
+const filteredDatas = ref([]);
+const nameDatas = ref([]);
+const amountDatas = ref([]);
+const foodTitleDatas = ref([]);
+const terjualDatas = ref([]);
+
+onMounted(() => {
+  loadDatas();
+});
+
+const loadChart = () => {
+  const ctx = document.getElementById("myChart");
+
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: foodTitleDatas.value,
+      datasets: [
+        {
+          label: "# of Supply",
+          data: amountDatas.value,
+          borderWidth: 2,
+        },
+        {
+          label: "# of terjual",
+          data: terjualDatas.value,
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+};
+
+const loadDatas = () => {
+  onSnapshot(transactionCollectionQuery, (querySnapshot) => {
+    const fbData = [];
+    const supplierNames = []; // Array untuk menyimpan nama supplier
+    const amountArray = [];
+    const terjualArray = [];
+    const foodTitleArray = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = {
+        id: doc.id,
+        amount: doc.data().amount,
+        date: doc.data().date,
+        foodTitle: doc.data().foodTitle,
+        price: doc.data().price,
+        supplier: doc.data().supplier,
+        terjual: doc.data().terjual,
+      };
+
+      fbData.push(data);
+      supplierNames.push(data.supplier); // Menambahkan nama supplier ke array
+      amountArray.push(data.amount);
+      terjualArray.push(data.terjual);
+      foodTitleArray.push(data.foodTitle);
+    });
+
+    datas.value = fbData;
+    filteredDatas.value = fbData;
+    nameDatas.value = supplierNames; // Menyimpan array nama supplier ke nameDatas
+    amountDatas.value = amountArray;
+    terjualDatas.value = terjualArray;
+    foodTitleDatas.value = foodTitleArray;
+
+    loadChart();
+  });
+};
+
+const filterDatas = () => {
+  const selectedName = filterData.value;
+  const start = new Date(startDate.value);
+  const end = new Date(endDate.value);
+
+  filteredDatas.value = datas.value.filter((data) => {
+    const dataDate = new Date(data.date);
+
+    // Check if the transaction type matches the selected type and falls within the date range
+    const isNameMatching =
+      selectedName === "" || data.supplier === selectedName;
+    const isDateInRange = dataDate >= start && dataDate <= end;
+
+    return isNameMatching && isDateInRange;
+  });
+};
+
+const inputData = async (data) => {
+  const inputAmount = prompt(`Enter the quantity sold for "${data.foodTitle}"`);
+  if (inputAmount === null) return; // User clicked Cancel
+
+  // Validate the input
+  const parsedAmount = parseInt(inputAmount);
+  if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+    const newData = {
+      ...data,
+      terjual: parsedAmount,
+    };
+
+    // Update data in the database
+    const docRef = doc(db, "kantin", data.id);
+    updateDoc(docRef, newData);
+  } else {
+    alert("Invalid input. Please enter a valid non-negative number.");
+  }
+
+  loadChart();
+};
+
+const calculateTotalKantin = () => {
+  return filteredDatas.value.reduce((total, data) => {
+    return total + calculateCommission(data.price) * data.terjual;
+  }, 0);
+};
+
+const calculateTotalSupplier = () => {
+  return filteredDatas.value.reduce((total, data) => {
+    return (
+      total + (data.price - calculateCommission(data.price)) * data.terjual
+    );
+  }, 0);
+};
+
+const addData = () => {
+  const supplierData = {
+    amount: amount.value,
+    supplier: supplier.value,
+    date: date.value,
+    foodTitle: foodTitle.value,
+    price: price.value,
+  };
+
+  addDoc(collection(db, "kantin"), supplierData);
+
+  amount.value = "";
+  supplier.value = "";
+  date.value = "";
+  foodTitle.value = "";
+  price.value = "";
+};
+
+const totalIncome = computed(() => {
+  return filteredTransactions.value
+    .filter(
+      (transaction) =>
+        transaction.transactiontype === "Pemasukan" ||
+        transaction.transactiontype === "Hutang"
+    )
+    .reduce((total, transaction) => {
+      return total + parseFloat(transaction.amount);
+    }, 0);
+});
+const totalOutcome = computed(() => {
+  return filteredTransactions.value
+    .filter((transaction) => transaction.transactiontype === "Pengeluaran")
+    .reduce((total, transaction) => {
+      return total + parseFloat(transaction.amount);
+    }, 0);
+});
+
+const deleteTransaction = async (id) => {
+  deleteDoc(doc(db, "finance", id));
+};
+
+const formatNumberWithCommas = (number) => {
+  let numStr = number.toString();
+  let groups = [];
+  while (numStr.length > 0) {
+    groups.unshift(numStr.slice(-3));
+    numStr = numStr.slice(0, -3);
+  }
+  let formattedValue = groups.join(".");
+  return formattedValue;
+};
+
+const calculateCommission = (price) => {
+  if (price <= 3000) {
+    return 100;
+  } else if (price > 3000 && price <= 6000) {
+    return 300;
+  } else {
+    return 500;
+  }
+};
+</script>
+
+<style>
+#myChart {
+  transform: scale(0.8);
+}
+
+.table-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.transaction-table {
+  border-collapse: collapse;
+  overflow: auto;
+  font-size: 16px;
+}
+
+.transaction-table th,
+.transaction-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.transaction-table th {
+  background-color: #f2f2f2;
+}
+.transaction-table tr {
+  background-color: #ddd;
+}
+.transaction-table tr:hover {
+  background-color: #80c972;
+}
+
+.edit-button {
+  background-color: #4a9c3a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.delete-button {
+  background-color: #e57373;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.delete-button:hover {
+  background-color: #d32f2f;
+}
+
+.addform {
+  width: 100%;
+  margin-top: 50px;
+  background-color: rgb(22, 22, 22);
+  padding: 10px 30px 30px 20px;
+  border-radius: 20px;
+}
+
+.input-form {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+@media (min-width: 1000px) {
+  .container {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.content .btn-group {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 800px) {
+  .input-form .field {
+    flex-direction: column;
+    place-items: center;
+    width: 300px;
+  }
+  .input-form .field .control {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .input-form .field .control input {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .input-form .field .control button {
+    width: 100%;
+  }
+  .input-form .field .control label:not(:first-child) {
+    margin-top: 10px;
+  }
+  #dTime {
+    margin-top: 20px;
+  }
+}
+</style>
