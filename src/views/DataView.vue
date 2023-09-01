@@ -14,6 +14,10 @@
             <option value="Bunda Qory">Bunda Qory</option>
             <option value="Kris Juniati">Kris Juniati</option>
             <option value="Nur">Nur</option>
+            <option value="Fiza">Fiza</option>
+            <option value="Citra">Citra</option>
+            <option value="Bunda Lutfi">Bunda Lutfi</option>
+            <option value="Bunda Nessa">Bunda Nessa</option>
           </select>
         </div>
         <div class="control">

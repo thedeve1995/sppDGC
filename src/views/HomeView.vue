@@ -14,6 +14,10 @@
             <option value="Bunda Qory">Bunda Qory</option>
             <option value="Kris Juniati">Kris Juniati</option>
             <option value="Nur">Nur</option>
+            <option value="Fiza">Fiza</option>
+            <option value="Citra">Citra</option>
+            <option value="Bunda Lutfi">Bunda Lutfi</option>
+            <option value="Bunda Nessa">Bunda Nessa</option>
           </select>
         </div>
         <div class="control">
@@ -253,12 +257,10 @@ const formatNumberWithCommas = (number) => {
 };
 
 const calculateCommission = (price) => {
-  if (price <= 3000) {
-    return 100;
-  } else if (price > 3000 && price <= 6000) {
-    return 300;
-  } else {
+  if (price > 6000) {
     return 500;
+  } else if (price >= 2500 && price <= 6000) {
+    return 300;
   }
 };
 </script>
