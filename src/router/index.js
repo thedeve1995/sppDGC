@@ -4,6 +4,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import DataView from '../views/DataView.vue'
+import PutriView from '../views/PutriView.vue'
+import PutraView from '../views/PutraView.vue'
 
 
 
@@ -28,6 +30,23 @@ const router = createRouter({
         requiresAuth:true,
       }
     },
+    {
+      path: '/putra',
+      name: 'putra',
+      component: PutraView,
+      meta :{
+        requiresAuth:true,
+      }
+    },
+    {
+      path: '/putri',
+      name: 'putri',
+      component: PutriView,
+      meta :{
+        requiresAuth:true,
+      }
+    },
+    
     {
       path: '/register',
       name: 'register',

@@ -71,38 +71,45 @@
     </div>
   </form>
 
- 
-
   <div
     style="
       display: flex;
       align-items: center;
       margin: 20px 0;
-      justify-content:center;
-      gap:20px
-
+      justify-content: center;
+      gap: 20px;
     "
   >
-    <button style="padding:20px;width:200px" @click="downloadAsPDF">Download as PDF</button>
-    <button style="padding:20px;width:200px" @click="openCommissionModal">Hitung Komisi Supplier</button>
+    <button style="padding: 20px; width: 200px" @click="downloadAsPDF">
+      Download as PDF
+    </button>
+    <button style="padding: 20px; width: 200px" @click="openCommissionModal">
+      Hitung Komisi Supplier
+    </button>
   </div>
-  
+
   <div style="display: flex; flex-direction: column; align-items: center">
     <label style="text-align: center; font-size: 20px" for="">Filter</label>
-    <input
-      type="text"
-      style="
-        width: 250px;
-        padding: 5px 20px;
-        font-size: 15px;
-        text-align: center;
-        border-radius: 10px;
-      "
+    <select
+      style="width: 250px"
+      id="author"
+      @change="filterDatas"
       v-model="filterData"
-      @input="filterDatas"
-      placeholder="Tulis Nama Supplier"
       class="input"
-    />
+    >
+      <option value="Indah">Indah</option>
+      <option value="Leni">Leni</option>
+      <option value="Lisa">Lisa</option>
+      <option value="Meta">Meta</option>
+      <option value="Dani">Dani</option>
+      <option value="Bunda Qory">Bunda Qory</option>
+      <option value="Kris Juniati">Kris Juniati</option>
+      <option value="Nur">Nur</option>
+      <option value="Fiza">Fiza</option>
+      <option value="Citra">Citra</option>
+      <option value="Bunda Lutfi">Bunda Lutfi</option>
+      <option value="Bunda Nessa">Bunda Nessa</option>
+    </select>
   </div>
 
   <div
@@ -134,17 +141,16 @@
       />
     </div>
   </div>
-  
 
   <div class="table-container">
     <h1
       style="
         color: white;
         font-size: 40px;
-        margin-bottom: 20px;
+        margin: 40px;
         background-color: black;
-        border-radius:10px;
-        padding: 20px 0
+        border-radius: 10px;
+        padding: 20px 0;
       "
     >
       Rekap Data Kantin : <br />
@@ -214,9 +220,7 @@
     </table>
   </div>
 
-  <div style="background-color: lightgrey; margin: 20px; border-radius: 20px">
-    <canvas id="myChart"></canvas>
-  </div>
+ 
 
   <div class="modal" :class="{ 'is-active': editModalOpen }">
     <div class="modal-background"></div>
@@ -275,6 +279,28 @@
           </div>
         </div>
         <div class="field">
+          <label class="label">Supply Putra</label>
+          <div class="control">
+            <input
+              v-model="supplyPutra"
+              class="input"
+              type="number"
+              placeholder="Masukkan Jumlah Terjual"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Supply Putri</label>
+          <div class="control">
+            <input
+              v-model="supplyPutri"
+              class="input"
+              type="number"
+              placeholder="Masukkan Jumlah Terjual"
+            />
+          </div>
+        </div>
+        <div class="field">
           <label class="label">Harga</label>
           <div class="control">
             <input
@@ -307,68 +333,81 @@
   </div>
 
   <div class="modal" :class="{ 'is-active': commissionModalOpen }">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Hitung Komisi Supplier</p>
-      <button class="delete" aria-label="close" @click="closeCommissionModal"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Nama Supplier</label>
-        <div class="control">
-          <select v-model="selectedSupplier" class="input" @change="calculateCommissionTotal">
-            <option value="">Semua Supplier</option>
-            <!-- Tambahkan pilihan nama supplier di sini -->
-            <option value="Indah">Indah</option>
-            <option value="Leni">Leni</option>
-            <option value="Lisa">Lisa</option>
-            <option value="Meta">Meta</option>
-            <option value="Dani">Dani</option>
-            <option value="Bunda Qory">Bunda Qory</option>
-            <option value="Kris Juniati">Kris Juniati</option>
-            <option value="Nur">Nur</option>
-            <option value="Fiza">Fiza</option>
-            <option value="Citra">Citra</option>
-            <option value="Bunda Lutfi">Bunda Lutfi</option>
-            <option value="Bunda Nessa">Bunda Nessa</option>
-          </select>
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Hitung Komisi Supplier</p>
+        <button
+          class="delete"
+          aria-label="close"
+          @click="closeCommissionModal"
+        ></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Nama Supplier</label>
+          <div class="control">
+            <select
+              v-model="selectedSupplier"
+              class="input"
+              @change="calculateCommissionTotal"
+            >
+              <option value="">Semua Supplier</option>
+              <!-- Tambahkan pilihan nama supplier di sini -->
+              <option value="Indah">Indah</option>
+              <option value="Leni">Leni</option>
+              <option value="Lisa">Lisa</option>
+              <option value="Meta">Meta</option>
+              <option value="Dani">Dani</option>
+              <option value="Bunda Qory">Bunda Qory</option>
+              <option value="Kris Juniati">Kris Juniati</option>
+              <option value="Nur">Nur</option>
+              <option value="Fiza">Fiza</option>
+              <option value="Citra">Citra</option>
+              <option value="Bunda Lutfi">Bunda Lutfi</option>
+              <option value="Bunda Nessa">Bunda Nessa</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Rentang Tanggal</label>
-        <div class="control">
-          <input
-            style="width: 200px"
-            id="commissionStartDate"
-            v-model="startDate1"
-            @change="calculateCommissionTotal"
-            class="input"
-            type="date"
-          />
-          <span style="color: white">s/d</span>
-          <input
-            style="width: 200px"
-            id="commissionEndDate"
-            v-model="endDate1"
-            @change="calculateCommissionTotal"
-            class="input"
-            type="date"
-          />
+        <div class="field">
+          <label class="label">Rentang Tanggal</label>
+          <div class="control">
+            <input
+              style="width: 200px"
+              id="commissionStartDate"
+              v-model="startDate1"
+              @change="calculateCommissionTotal"
+              class="input"
+              type="date"
+            />
+            <span style="color: white">s/d</span>
+            <input
+              style="width: 200px"
+              id="commissionEndDate"
+              v-model="endDate1"
+              @change="calculateCommissionTotal"
+              class="input"
+              type="date"
+            />
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Total Komisi Supplier</label>
-        <div class="control">
-          <input v-model="commissionTotal" class="input" type="text" disabled />
+        <div class="field">
+          <label class="label">Total Komisi Supplier</label>
+          <div class="control">
+            <input
+              v-model="commissionTotal"
+              class="input"
+              type="text"
+              disabled
+            />
+          </div>
         </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button @click="closeCommissionModal" class="button">Tutup</button>
-    </footer>
+      </section>
+      <footer class="modal-card-foot">
+        <button @click="closeCommissionModal" class="button">Tutup</button>
+      </footer>
+    </div>
   </div>
-</div>
 </template>
 <script setup>
 import { ref, onMounted, computed } from "vue";
@@ -420,6 +459,9 @@ const editFoodTitle = ref("");
 const editAmount = ref("");
 const editModalOpen = ref(false);
 const editTerjual = ref("");
+const supplyPutra = ref("");
+const supplyPutri = ref("");
+
 const editPrice = ref("");
 
 const commissionModalOpen = ref(false);
@@ -438,15 +480,20 @@ const calculateCommissionTotal = () => {
   // Filter data berdasarkan supplier dan rentang tanggal
   const filteredData = filteredDatas.value.filter((data) => {
     const dataDate = new Date(data.date);
-    const isSupplierMatching = selectedSupplier.value === "" || data.supplier === selectedSupplier.value;
-    const isDateInRange = dataDate >= new Date(startDate1.value) && dataDate <= new Date(endDate1.value);
+    const isSupplierMatching =
+      selectedSupplier.value === "" || data.supplier === selectedSupplier.value;
+    const isDateInRange =
+      dataDate >= new Date(startDate1.value) &&
+      dataDate <= new Date(endDate1.value);
 
     return isSupplierMatching && isDateInRange;
   });
 
   // Hitung total komisi supplier
   commissionTotal.value = filteredData.reduce((total, data) => {
-    return total + (data.price - calculateCommission(data.price)) * data.terjual;
+    return (
+      total + (data.price - calculateCommission(data.price)) * data.terjual
+    );
   }, 0);
 };
 
@@ -460,6 +507,9 @@ const editData = async (id) => {
       terjual: editTerjual.value,
       price: editPrice.value,
       foodTitle: editFoodTitle.value,
+      supplyPutra: supplyPutra.value,
+      supplyPutri: supplyPutri.value,
+      
     };
 
     try {
@@ -474,8 +524,7 @@ const editData = async (id) => {
       // Handle error here (e.g., show an error message)
     }
   }
-
-  filterDatas()
+  filterDatas();
 };
 
 const openEditModal = (id) => {
@@ -487,6 +536,9 @@ const openEditModal = (id) => {
     editPrice.value = data.price; // Populate editTransactionType
     editSupplier.value = data.supplier;
     editTerjual.value = data.terjual;
+    supplyPutra.value = data.putra;
+    supplyPutri.value = data.putri;
+    
 
     editingDataId.value = id;
     editModalOpen.value = true;
@@ -500,7 +552,9 @@ const closeEditModal = () => {
   editTerjual.value = ""; // Clear editTransactionType
   editPrice.value = "";
   editFoodTitle.value = "";
-  // ... (clear other edit variables)
+  supplyPutra.value = "";
+  supplyPutri.value = "";
+  
 
   editingDataId.value = "";
   editModalOpen.value = false;
@@ -526,35 +580,7 @@ onMounted(() => {
   loadDatas();
 });
 
-const loadChart = () => {
-  const ctx = document.getElementById("myChart");
 
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: foodTitleDatas.value,
-      datasets: [
-        {
-          label: "# of Supply",
-          data: amountDatas.value,
-          borderWidth: 2,
-        },
-        {
-          label: "# of terjual",
-          data: terjualDatas.value,
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
-};
 
 const loadDatas = () => {
   onSnapshot(transactionCollectionQuery, (querySnapshot) => {
@@ -573,6 +599,9 @@ const loadDatas = () => {
         price: doc.data().price,
         supplier: doc.data().supplier,
         terjual: doc.data().terjual,
+        putra: doc.data().supplyPutra,
+        putri: doc.data().supplyPutri,
+       
       };
 
       fbData.push(data);
@@ -589,7 +618,7 @@ const loadDatas = () => {
     terjualDatas.value = terjualArray;
     foodTitleDatas.value = foodTitleArray;
 
-    loadChart();
+    
   });
 };
 
@@ -608,28 +637,6 @@ const filterDatas = () => {
 
     return isNameMatching && isDateInRange;
   });
-};
-
-const inputData = async (data) => {
-  const inputAmount = prompt(`Enter the quantity sold for "${data.foodTitle}"`);
-  if (inputAmount === null) return; // User clicked Cancel
-
-  // Validate the input
-  const parsedAmount = parseInt(inputAmount);
-  if (!isNaN(parsedAmount) && parsedAmount >= 0) {
-    const newData = {
-      ...data,
-      terjual: parsedAmount,
-    };
-
-    // Update data in the database
-    const docRef = doc(db, "kantin", data.id);
-    updateDoc(docRef, newData);
-  } else {
-    alert("Invalid input. Please enter a valid non-negative number.");
-  }
-
-  loadChart();
 };
 
 const calculateTotalKantin = () => {
@@ -721,7 +728,7 @@ const calculateCommission = (price) => {
 
 .transaction-table {
   border-collapse: collapse;
-  overflow: auto;
+  margin: 40px;
   font-size: 16px;
 }
 
