@@ -3,75 +3,46 @@
     <div class="input-form">
       <div class="field has-addons">
         <div class="control">
-          <label for="author">Supplier</label>
-          <select id="author" v-model="supplier" class="input">
-            <option value="">Pilih Supplier</option>
-            <option value="Indah">Indah</option>
-            <option value="Leni">Leni</option>
-            <option value="Lisa">Lisa</option>
-            <option value="Meta">Meta</option>
-            <option value="Dani">Dani</option>
-            <option value="Bunda Qory">Bunda Qory</option>
-            <option value="Kris Juniati">Kris Juniati</option>
-            <option value="Nur">Nur</option>
-            <option value="Fiza">Fiza</option>
-            <option value="Citra">Citra</option>
-            <option value="Bunda Lutfi">Bunda Lutfi</option>
-            <option value="Bunda Nessa">Bunda Nessa</option>
+          <label for="studentSelect">Nama Murid</label>
+          <select id="studentSelect" v-model="selectedStudent" class="input">
+            <option value="" disabled selected>Pilih Murid</option>
+            <option v-for="student in students" :value="student.studentName">
+              {{ student.studentName }}
+            </option>
           </select>
         </div>
         <div class="control">
-          <label for="foodTitle">Nama Makanan</label>
-          <input
-            id="foodTitle"
-            v-model="foodTitle"
-            class="input"
-            type="text"
-            placeholder="Nama Makanan"
-          />
-        </div>
-        <div class="control">
-          <label for="amount">Jumlah</label>
-          <input
-            id="amount"
-            v-model="amount"
-            class="input"
-            type="number"
-            placeholder="amount"
-          />
-        </div>
-        <div class="control">
-          <label for="price">Harga Jual</label>
+          <label for="price">NISN</label>
           <input
             id="price"
-            v-model="price"
+            v-model="nisn"
             class="input"
             type="number"
-            placeholder="price"
+            placeholder="NISN"
           />
         </div>
         <div class="control">
-          <label for="date">Tanggal</label>
+          <label for="gender">Gender</label>
           <input
-            id="date"
-            title="date"
-            v-model="date"
+            id="gender"
+            title="gender"
+            v-model="gender"
             class="input"
-            type="date"
+            type="text"
           />
         </div>
 
         <div class="control">
           <label style="color: transparent" for="">.</label>
-          <button :disabled="!supplier" class="button is-info">
-            Tambah Transaksi
+          <button :disabled="!studentName" class="button is-info">
+            Tambah Data
           </button>
         </div>
       </div>
     </div>
   </form>
 
-  <div
+  <!-- <div
     style="
       display: flex;
       align-items: center;
@@ -140,273 +111,37 @@
         type="date"
       />
     </div>
-  </div>
+  </div> -->
 
   <div class="table-container">
-    <h1
-      style="
-        color: white;
-        font-size: 40px;
-        margin: 40px;
-        background-color: black;
-        border-radius: 10px;
-        padding: 20px 0;
-      "
-    >
-      Rekap Data Kantin : <br />
-      {{ startDate }} s/d {{ endDate }}
-    </h1>
     <table class="transaction-table" style="padding: 20px">
       <thead>
         <tr>
-          <th>Tanggal</th>
-          <th>Supplier</th>
-          <th>Nama Makanan</th>
-          <th>Jumlah Supply</th>
-          <th>Harga Makanan</th>
-          <th>Komisi Kantin</th>
-          <th>Untuk Supplier</th>
-          <th>Terjual</th>
-          <th>Total Kantin</th>
-          <th>Total Supplier</th>
-          <th>Aksi</th>
+          <th>No</th>
+          <th>Nama</th>
+          <th style="width: 150px">NISN</th>
+          <th>Gender</th>
+          <th>Kelas</th>
+          <th>Kebutuhan Khusus</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="data in filteredDatas" :key="data.id">
-          <td>{{ data.date }}</td>
-          <td>{{ data.supplier }}</td>
-          <td>{{ data.foodTitle }}</td>
-          <td>{{ data.amount }}</td>
-          <td>Rp {{ formatNumberWithCommas(data.price) }}</td>
-          <td>Rp {{ calculateCommission(data.price) }}</td>
+          <td>{{ data.No }}</td>
+          <td>{{ data.studentName }}</td>
+          <td>{{ data.nisn }}</td>
+          <td>{{ data.gender }}</td>
+          <td>{{ data.kelas }}</td>
+          <td>{{ data.abk }}</td>
           <td>
-            Rp
-            {{
-              formatNumberWithCommas(
-                data.price - calculateCommission(data.price)
-              )
-            }}
-          </td>
-          <td>{{ data.terjual }}</td>
-          <td>Rp {{ calculateCommission(data.price) * data.terjual }}</td>
-          <td>
-            Rp
-            {{
-              formatNumberWithCommas(
-                (data.price - calculateCommission(data.price)) * data.terjual
-              )
-            }}
-          </td>
-          <td>
-            <button @click="openEditModal(data.id)" class="edit-button">
-              Edit
-            </button>
             <button @click="deleteData(data.id)" class="delete-button">
               Hapus
             </button>
           </td>
         </tr>
-        <tr>
-          <td colspan="8" style="text-align: right; font-weight: 700">Total</td>
-          <td id="totalKantin" style="text-align: left; font-weight: 700">
-            Rp {{ formatNumberWithCommas(calculateTotalKantin()) }}
-          </td>
-          <td id="totalSupplier" style="text-align: left; font-weight: 700">
-            Rp {{ formatNumberWithCommas(calculateTotalSupplier()) }}
-          </td>
-        </tr>
       </tbody>
     </table>
-  </div>
-
- 
-
-  <div class="modal" :class="{ 'is-active': editModalOpen }">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Edit Data</p>
-        <button
-          class="delete"
-          aria-label="close"
-          @click="closeEditModal"
-        ></button>
-      </header>
-      <section class="modal-card-body">
-        <div class="field">
-          <label class="label">Tanggal</label>
-          <div class="control">
-            <input
-              v-model="editDate"
-              class="input"
-              type="date"
-              placeholder="Tanggal"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Supplier</label>
-          <div class="control">
-            <input
-              v-model="editSupplier"
-              class="input"
-              type="text"
-              placeholder="Supplier"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Nama Makanan</label>
-          <div class="control">
-            <input
-              v-model="editFoodTitle"
-              class="input"
-              type="text"
-              placeholder="Nama Makanan"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Jumlah</label>
-          <div class="control">
-            <input
-              v-model="editAmount"
-              class="input"
-              type="number"
-              placeholder="Jumlah"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Supply Putra</label>
-          <div class="control">
-            <input
-              v-model="supplyPutra"
-              class="input"
-              type="number"
-              placeholder="Masukkan Jumlah Terjual"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Supply Putri</label>
-          <div class="control">
-            <input
-              v-model="supplyPutri"
-              class="input"
-              type="number"
-              placeholder="Masukkan Jumlah Terjual"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Harga</label>
-          <div class="control">
-            <input
-              v-model="editPrice"
-              class="input"
-              type="number"
-              placeholder="Price"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Terjual</label>
-          <div class="control">
-            <input
-              v-model="editTerjual"
-              class="input"
-              type="number"
-              placeholder="Masukkan Jumlah Terjual"
-            />
-          </div>
-        </div>
-      </section>
-      <footer class="modal-card-foot">
-        <button @click="editData(editingDataId)" class="button is-success">
-          Simpan
-        </button>
-        <button class="button" @click="closeEditModal">Batal</button>
-      </footer>
-    </div>
-  </div>
-
-  <div class="modal" :class="{ 'is-active': commissionModalOpen }">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Hitung Komisi Supplier</p>
-        <button
-          class="delete"
-          aria-label="close"
-          @click="closeCommissionModal"
-        ></button>
-      </header>
-      <section class="modal-card-body">
-        <div class="field">
-          <label class="label">Nama Supplier</label>
-          <div class="control">
-            <select
-              v-model="selectedSupplier"
-              class="input"
-              @change="calculateCommissionTotal"
-            >
-              <option value="">Semua Supplier</option>
-              <!-- Tambahkan pilihan nama supplier di sini -->
-              <option value="Indah">Indah</option>
-              <option value="Leni">Leni</option>
-              <option value="Lisa">Lisa</option>
-              <option value="Meta">Meta</option>
-              <option value="Dani">Dani</option>
-              <option value="Bunda Qory">Bunda Qory</option>
-              <option value="Kris Juniati">Kris Juniati</option>
-              <option value="Nur">Nur</option>
-              <option value="Fiza">Fiza</option>
-              <option value="Citra">Citra</option>
-              <option value="Bunda Lutfi">Bunda Lutfi</option>
-              <option value="Bunda Nessa">Bunda Nessa</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Rentang Tanggal</label>
-          <div class="control">
-            <input
-              style="width: 200px"
-              id="commissionStartDate"
-              v-model="startDate1"
-              @change="calculateCommissionTotal"
-              class="input"
-              type="date"
-            />
-            <span style="color: white">s/d</span>
-            <input
-              style="width: 200px"
-              id="commissionEndDate"
-              v-model="endDate1"
-              @change="calculateCommissionTotal"
-              class="input"
-              type="date"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Total Komisi Supplier</label>
-          <div class="control">
-            <input
-              v-model="commissionTotal"
-              class="input"
-              type="text"
-              disabled
-            />
-          </div>
-        </div>
-      </section>
-      <footer class="modal-card-foot">
-        <button @click="closeCommissionModal" class="button">Tutup</button>
-      </footer>
-    </div>
   </div>
 </template>
 <script setup>
@@ -422,303 +157,303 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase";
-import html2canvas from "html2canvas"; // Import html2canvas
-import jsPDF from "jspdf";
+// import html2canvas from "html2canvas"; // Import html2canvas
+// import jsPDF from "jspdf";
 
-const downloadAsPDF = () => {
-  const screenshotElement = document.querySelector(".table-container");
-
-  html2canvas(screenshotElement).then((canvas) => {
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("screenshot.pdf");
-  });
-};
-
-const amount = ref("");
-const supplier = ref("");
-const date = ref("");
-const price = ref("");
-const foodTitle = ref("");
-
-const filterData = ref("");
-const startDate = ref("");
-const startDate1 = ref("");
-const endDate = ref("");
-const endDate1 = ref("");
-
-const editDate = ref("");
-const editingDataId = ref("");
-const editSupplier = ref("");
-const editFoodTitle = ref("");
-const editAmount = ref("");
-const editModalOpen = ref(false);
-const editTerjual = ref("");
-const supplyPutra = ref("");
-const supplyPutri = ref("");
-
-const editPrice = ref("");
-
-const commissionModalOpen = ref(false);
-const selectedSupplier = ref(""); // Untuk menyimpan nama supplier yang dipilih pada filter
-const commissionTotal = ref(0); // Untuk menyimpan total komisi supplier
-
-const openCommissionModal = () => {
-  commissionModalOpen.value = true;
-};
-
-const closeCommissionModal = () => {
-  commissionModalOpen.value = false;
-};
-
-const calculateCommissionTotal = () => {
-  // Filter data berdasarkan supplier dan rentang tanggal
-  const filteredData = filteredDatas.value.filter((data) => {
-    const dataDate = new Date(data.date);
-    const isSupplierMatching =
-      selectedSupplier.value === "" || data.supplier === selectedSupplier.value;
-    const isDateInRange =
-      dataDate >= new Date(startDate1.value) &&
-      dataDate <= new Date(endDate1.value);
-
-    return isSupplierMatching && isDateInRange;
-  });
-
-  // Hitung total komisi supplier
-  commissionTotal.value = filteredData.reduce((total, data) => {
-    return (
-      total + (data.price - calculateCommission(data.price)) * data.terjual
-    );
-  }, 0);
-};
-
-const editData = async (id) => {
-  const dataIndex = datas.value.findIndex((t) => t.id === id);
-  if (dataIndex !== -1) {
-    const editedData = {
-      amount: editAmount.value,
-      supplier: editSupplier.value,
-      date: editDate.value,
-      terjual: editTerjual.value,
-      price: editPrice.value,
-      foodTitle: editFoodTitle.value,
-      supplyPutra: supplyPutra.value,
-      supplyPutri: supplyPutri.value,
-      
-    };
-
-    try {
-      await updateDoc(doc(db, "kantin", id), editedData);
-      datas.value[dataIndex] = {
-        ...datas.value[dataIndex],
-        ...editedData,
-      };
-      closeEditModal();
-    } catch (error) {
-      console.error("Error editing transaction:", error);
-      // Handle error here (e.g., show an error message)
-    }
-  }
-  filterDatas();
-};
-
-const openEditModal = (id) => {
-  const data = datas.value.find((t) => t.id === id);
-  if (data) {
-    editAmount.value = data.amount;
-    editDate.value = data.date;
-    editFoodTitle.value = data.foodTitle; // Populate editDate
-    editPrice.value = data.price; // Populate editTransactionType
-    editSupplier.value = data.supplier;
-    editTerjual.value = data.terjual;
-    supplyPutra.value = data.putra;
-    supplyPutri.value = data.putri;
-    
-
-    editingDataId.value = id;
-    editModalOpen.value = true;
-  }
-};
-
-const closeEditModal = () => {
-  editAmount.value = "";
-  editSupplier.value = "";
-  editDate.value = ""; // Clear editDate
-  editTerjual.value = ""; // Clear editTransactionType
-  editPrice.value = "";
-  editFoodTitle.value = "";
-  supplyPutra.value = "";
-  supplyPutri.value = "";
-  
-
-  editingDataId.value = "";
-  editModalOpen.value = false;
-};
-
-const deleteData = async (id) => {
-  deleteDoc(doc(db, "kantin", id));
-};
+const studentName = ref("");
+const nisn = ref("");
+const gender = ref("");
 
 const transactionCollectionQuery = query(
-  collection(db, "kantin"),
-  orderBy("supplier", "asc")
+  collection(db, "studentBase"),
+  orderBy("No", "asc")
   // limit(10)
 );
 const datas = ref([]);
 const filteredDatas = ref([]);
-const nameDatas = ref([]);
-const amountDatas = ref([]);
-const foodTitleDatas = ref([]);
-const terjualDatas = ref([]);
 
 onMounted(() => {
   loadDatas();
+  loadStudents(); 
 });
 
+const students = ref([]);
 
+const months = [
+  { id: 1, time: 'Juli 2023' },
+  { id: 2, time: 'Agustus 2023' },
+  { id: 3, time: 'September 2023' },
+  { id: 4, time: 'Oktober 2023' },
+  { id: 5, time: 'November 2023' },
+  { id: 6, time: 'Desember 2023' },
+  { id: 7, time: 'Januari 2024' },
+  { id: 8, time: 'Februari 2024' },
+  { id: 9, time: 'Maret 2024' },
+  { id: 10, time: 'April 2024' },
+  { id: 11, time: 'Mei 2024' },
+  { id: 12, time: 'Juni 2024' },
+]
 
+const selectedStudent = ref("")
+
+const loadStudents = () => {
+  onSnapshot(transactionCollectionQuery, (querySnapshot) => {
+    const studentList = [];
+
+    querySnapshot.forEach((doc) => {
+      const student = {
+        id: doc.id,
+        no: doc.No,
+        studentName: doc.data().Nama,
+      };
+
+      studentList.push(student);
+    });
+
+    students.value = studentList;
+  });
+};
 const loadDatas = () => {
   onSnapshot(transactionCollectionQuery, (querySnapshot) => {
     const fbData = [];
-    const supplierNames = []; // Array untuk menyimpan nama supplier
-    const amountArray = [];
-    const terjualArray = [];
-    const foodTitleArray = [];
 
     querySnapshot.forEach((doc) => {
       const data = {
         id: doc.id,
-        amount: doc.data().amount,
-        date: doc.data().date,
-        foodTitle: doc.data().foodTitle,
-        price: doc.data().price,
-        supplier: doc.data().supplier,
-        terjual: doc.data().terjual,
-        putra: doc.data().supplyPutra,
-        putri: doc.data().supplyPutri,
-       
+        No: doc.data().No,
+        studentName: doc.data().Nama,
+        nisn: doc.data().NISN,
+        gender: doc.data().JK,
+        kelas: doc.data().Rombel,
+        abk: doc.data().KebutuhanKhusus,
       };
 
       fbData.push(data);
-      supplierNames.push(data.supplier); // Menambahkan nama supplier ke array
-      amountArray.push(data.amount);
-      terjualArray.push(data.terjual);
-      foodTitleArray.push(data.foodTitle);
     });
 
     datas.value = fbData;
     filteredDatas.value = fbData;
-    nameDatas.value = supplierNames; // Menyimpan array nama supplier ke nameDatas
-    amountDatas.value = amountArray;
-    terjualDatas.value = terjualArray;
-    foodTitleDatas.value = foodTitleArray;
-
-    
   });
-};
-
-const filterDatas = () => {
-  const selectedName = filterData.value;
-  const start = new Date(startDate.value);
-  const end = new Date(endDate.value);
-
-  filteredDatas.value = datas.value.filter((data) => {
-    const dataDate = new Date(data.date);
-
-    // Check if the transaction type matches the selected type and falls within the date range
-    const isNameMatching =
-      selectedName === "" || data.supplier === selectedName;
-    const isDateInRange = dataDate >= start && dataDate <= end;
-
-    return isNameMatching && isDateInRange;
-  });
-};
-
-const calculateTotalKantin = () => {
-  return filteredDatas.value.reduce((total, data) => {
-    return total + calculateCommission(data.price) * data.terjual;
-  }, 0);
-};
-
-const calculateTotalSupplier = () => {
-  return filteredDatas.value.reduce((total, data) => {
-    return (
-      total + (data.price - calculateCommission(data.price)) * data.terjual
-    );
-  }, 0);
 };
 
 const addData = () => {
-  const supplierData = {
-    amount: amount.value,
-    supplier: supplier.value,
-    date: date.value,
-    foodTitle: foodTitle.value,
-    price: price.value,
+  const studentData = {
+    studentName: studentName.value,
+    
+    nisn: nisn.value,
+    gender: gender.value,
   };
 
-  addDoc(collection(db, "kantin"), supplierData);
+  addDoc(collection(db, "studentBase"), studentData);
 
-  amount.value = "";
-  supplier.value = "";
-  date.value = "";
-  foodTitle.value = "";
-  price.value = "";
+  studentName.value = "";
+  nis.value = "";
+  nisn.value = "";
+  gender.value = "";
 };
 
-const totalIncome = computed(() => {
-  return filteredTransactions.value
-    .filter(
-      (transaction) =>
-        transaction.transactiontype === "Pemasukan" ||
-        transaction.transactiontype === "Hutang"
-    )
-    .reduce((total, transaction) => {
-      return total + parseFloat(transaction.amount);
-    }, 0);
-});
-const totalOutcome = computed(() => {
-  return filteredTransactions.value
-    .filter((transaction) => transaction.transactiontype === "Pengeluaran")
-    .reduce((total, transaction) => {
-      return total + parseFloat(transaction.amount);
-    }, 0);
-});
-
-const deleteTransaction = async (id) => {
-  deleteDoc(doc(db, "finance", id));
+const deleteData = async (id) => {
+  deleteDoc(doc(db, "studentBase", id));
 };
 
-const formatNumberWithCommas = (number) => {
-  let numStr = number.toString();
-  let groups = [];
-  while (numStr.length > 0) {
-    groups.unshift(numStr.slice(-3));
-    numStr = numStr.slice(0, -3);
-  }
-  let formattedValue = groups.join(".");
-  return formattedValue;
-};
+// const downloadAsPDF = () => {
+//   const screenshotElement = document.querySelector(".table-container");
 
-const calculateCommission = (price) => {
-  if (price > 6000) {
-    return 500;
-  } else if (price >= 2500 && price <= 6000) {
-    return 300;
-  }
-};
+//   html2canvas(screenshotElement).then((canvas) => {
+//     const imgData = canvas.toDataURL("image/png");
+//     const pdf = new jsPDF();
+//     const imgProps = pdf.getImageProperties(imgData);
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+//     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+//     pdf.save("screenshot.pdf");
+//   });
+// };
+
+// const filterData = ref("");
+// const startDate = ref("");
+// const startDate1 = ref("");
+// const endDate = ref("");
+// const endDate1 = ref("");
+
+// const editDate = ref("");
+// const editingDataId = ref("");
+// const editSupplier = ref("");
+// const editFoodTitle = ref("");
+// const editAmount = ref("");
+// const editModalOpen = ref(false);
+// const editTerjual = ref("");
+// const supplyPutra = ref("");
+// const supplyPutri = ref("");
+
+// const editPrice = ref("");
+
+// const commissionModalOpen = ref(false);
+// const selectedSupplier = ref(""); // Untuk menyimpan nama supplier yang dipilih pada filter
+// const commissionTotal = ref(0); // Untuk menyimpan total komisi supplier
+
+// const openCommissionModal = () => {
+//   commissionModalOpen.value = true;
+// };
+
+// const closeCommissionModal = () => {
+//   commissionModalOpen.value = false;
+// };
+
+// const calculateCommissionTotal = () => {
+//   // Filter data berdasarkan supplier dan rentang tanggal
+//   const filteredData = filteredDatas.value.filter((data) => {
+//     const dataDate = new Date(data.date);
+//     const isSupplierMatching =
+//       selectedSupplier.value === "" || data.supplier === selectedSupplier.value;
+//     const isDateInRange =
+//       dataDate >= new Date(startDate1.value) &&
+//       dataDate <= new Date(endDate1.value);
+
+//     return isSupplierMatching && isDateInRange;
+//   });
+
+//   // Hitung total komisi supplier
+//   commissionTotal.value = filteredData.reduce((total, data) => {
+//     return (
+//       total + (data.price - calculateCommission(data.price)) * data.terjual
+//     );
+//   }, 0);
+// };
+
+// const editData = async (id) => {
+//   const dataIndex = datas.value.findIndex((t) => t.id === id);
+//   if (dataIndex !== -1) {
+//     const editedData = {
+//       amount: editAmount.value,
+//       supplier: editSupplier.value,
+//       date: editDate.value,
+//       terjual: editTerjual.value,
+//       price: editPrice.value,
+//       foodTitle: editFoodTitle.value,
+//       supplyPutra: supplyPutra.value,
+//       supplyPutri: supplyPutri.value,
+
+//     };
+
+//     try {
+//       await updateDoc(doc(db, "studentBase", id), editedData);
+//       datas.value[dataIndex] = {
+//         ...datas.value[dataIndex],
+//         ...editedData,
+//       };
+//       closeEditModal();
+//     } catch (error) {
+//       console.error("Error editing transaction:", error);
+//       // Handle error here (e.g., show an error message)
+//     }
+//   }
+//   filterDatas();
+// };
+
+// const openEditModal = (id) => {
+//   const data = datas.value.find((t) => t.id === id);
+//   if (data) {
+//     editAmount.value = data.amount;
+//     editDate.value = data.date;
+//     editFoodTitle.value = data.foodTitle; // Populate editDate
+//     editPrice.value = data.price; // Populate editTransactionType
+//     editSupplier.value = data.supplier;
+//     editTerjual.value = data.terjual;
+//     supplyPutra.value = data.putra;
+//     supplyPutri.value = data.putri;
+
+//     editingDataId.value = id;
+//     editModalOpen.value = true;
+//   }
+// };
+
+// const closeEditModal = () => {
+//   editAmount.value = "";
+//   editSupplier.value = "";
+//   editDate.value = ""; // Clear editDate
+//   editTerjual.value = ""; // Clear editTransactionType
+//   editPrice.value = "";
+//   editFoodTitle.value = "";
+//   supplyPutra.value = "";
+//   supplyPutri.value = "";
+
+//   editingDataId.value = "";
+//   editModalOpen.value = false;
+// };
+
+// const filterDatas = () => {
+//   const selectedName = filterData.value;
+//   const start = new Date(startDate.value);
+//   const end = new Date(endDate.value);
+
+//   filteredDatas.value = datas.value.filter((data) => {
+//     const dataDate = new Date(data.date);
+
+//     // Check if the transaction type matches the selected type and falls within the date range
+//     const isNameMatching =
+//       selectedName === "" || data.supplier === selectedName;
+//     const isDateInRange = dataDate >= start && dataDate <= end;
+
+//     return isNameMatching && isDateInRange;
+//   });
+// };
+
+// const calculateTotalstudentBase = () => {
+//   return filteredDatas.value.reduce((total, data) => {
+//     return total + calculateCommission(data.price) * data.terjual;
+//   }, 0);
+// };
+
+// const calculateTotalSupplier = () => {
+//   return filteredDatas.value.reduce((total, data) => {
+//     return (
+//       total + (data.price - calculateCommission(data.price)) * data.terjual
+//     );
+//   }, 0);
+// };
+
+// const totalIncome = computed(() => {
+//   return filteredTransactions.value
+//     .filter(
+//       (transaction) =>
+//         transaction.transactiontype === "Pemasukan" ||
+//         transaction.transactiontype === "Hutang"
+//     )
+//     .reduce((total, transaction) => {
+//       return total + parseFloat(transaction.amount);
+//     }, 0);
+// });
+// const totalOutcome = computed(() => {
+//   return filteredTransactions.value
+//     .filter((transaction) => transaction.transactiontype === "Pengeluaran")
+//     .reduce((total, transaction) => {
+//       return total + parseFloat(transaction.amount);
+//     }, 0);
+// });
+
+// const formatNumberWithCommas = (number) => {
+//   let numStr = number.toString();
+//   let groups = [];
+//   while (numStr.length > 0) {
+//     groups.unshift(numStr.slice(-3));
+//     numStr = numStr.slice(0, -3);
+//   }
+//   let formattedValue = groups.join(".");
+//   return formattedValue;
+// };
+
+// const calculateCommission = (price) => {
+//   if (price > 6000) {
+//     return 500;
+//   } else if (price >= 2500 && price <= 6000) {
+//     return 300;
+//   }
+// };
 </script>
 
 <style>
-#myChart {
-  transform: scale(0.8);
-}
-
 .table-container {
   display: flex;
   justify-content: center;

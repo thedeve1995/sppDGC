@@ -4,9 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import DataView from '../views/DataView.vue'
-import PutriView from '../views/PutriView.vue'
-import PutraView from '../views/PutraView.vue'
-
+import SppView from '../views/SppView.vue'
 
 
 const router = createRouter({
@@ -23,6 +21,11 @@ const router = createRouter({
       component: LoginView
     },
     {
+      path: '/spp',
+      name: 'spp',
+      component: SppView
+    },
+    {
       path: '/data',
       name: 'data',
       component: DataView,
@@ -30,23 +33,7 @@ const router = createRouter({
         requiresAuth:true,
       }
     },
-    {
-      path: '/putra',
-      name: 'putra',
-      component: PutraView,
-      meta :{
-        requiresAuth:true,
-      }
-    },
-    {
-      path: '/putri',
-      name: 'putri',
-      component: PutriView,
-      meta :{
-        requiresAuth:true,
-      }
-    },
-    
+       
     {
       path: '/register',
       name: 'register',

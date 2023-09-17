@@ -42,14 +42,13 @@ const handleSignOut = () => {
 
 <template>
   <header>
-    <h1 style="color: white; font-size: 30px">DGC-Kantin<br /></h1>
+    <h1 style="color: white; font-size: 30px">DGC-Student Base<br /></h1>
     <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink> |
         <RouterLink to="/data">Admin</RouterLink> |
         <RouterLink to="/login">Login</RouterLink> |
-        <RouterLink to="/putra">Putra</RouterLink> |
-        <RouterLink to="/putri">Putri</RouterLink> |
+        <RouterLink to="/spp">SPP 23/24</RouterLink> |
         <p class="user" v-if="isLoggedIn">{{ user.email.slice(0,7) }}</p> |
         <button @click="handleSignOut" v-if="isLoggedIn" style="padding: 5px 10px;border-radius: 10px;">Sign Out</button>
       </nav>

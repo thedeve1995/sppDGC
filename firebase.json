@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "dgc-kantin",
+    "site": "dgc-spp",
     "public": "dist",
     "ignore": [
       "firebase.json",
